@@ -6,7 +6,7 @@ function main()
     freq = 45 # minutes
     
     for i = 1:1000 # limiting the number of tweets in Teo life time.
-        TeoBot.post_tweet_from_rss(true)
+        TeoBot.post_tweet_from_rss()
         @info "Next tweet in $freq minutes."
         sleep(60*freq) # freq minutes
     end
