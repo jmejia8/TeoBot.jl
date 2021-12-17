@@ -1,5 +1,5 @@
 module TeoBot
 
-greet() = print("Hello World!")
+include("post_from_rss.jl")
 
 end # module

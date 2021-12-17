@@ -2,3 +2,11 @@ name = "TeoBot"
 uuid = "7a62c300-20f5-467a-b8c1-dc9369f61570"
 authors = ["Jesus Mejia <jesusmejded@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+EzXML = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TwiliteTimeline = "e840c479-728b-4aa1-8e51-d6f149480f58"
