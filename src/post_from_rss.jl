@@ -6,17 +6,19 @@ using Random
 
 function xml2dict_(root_node, data = Dict())
     
+    # simple node (primary values as child, i.e., string, numeric, etc) stops recursion
     if countnodes(root_node) == 1
         data[nodename(root_node)] = nodecontent(root_node)
         return data
     end
     
     dd = Dict()
+    # crate a dict for each node (recursion)
     for item in eachelement(root_node)
         d = xml2dict_(item, dd)
     end
 
-
+    # equal named nodes are saved into lists of dictionaries
     if nodename(root_node) in collect(keys(data))
         data[nodename(root_node)] = vcat(data[nodename(root_node)], dd)
     else
@@ -28,6 +30,7 @@ end
 
 function xml2dict(root_node)
     d  =xml2dict_(root_node)
+    # only rss xml are considered
     if "rss" ∉ collect(keys(d)) || "channel" ∉ collect(keys(d["rss"]))
         return Dict("item" => [])
     end
@@ -35,6 +38,7 @@ function xml2dict(root_node)
     return d["rss"]["channel"]
 end
 
+# my favorite rss feed channels
 const favorites_channels = [
                             Dict("url" => "http://feeds.weblogssl.com/xatakaciencia",
                                  "emojis" => "👩‍🔬🖥👩‍🏫🦾",
@@ -63,6 +67,7 @@ const favorites_channels = [
                            ]
 
 function get_tweet_from_rss()
+    # read txt with already published tweets
     fname = normpath(joinpath(@__FILE__,"..", "..","data"))
     if !isdir(fname)
         mkdir(fname)
@@ -73,19 +78,26 @@ function get_tweet_from_rss()
     channel = rand(favorites_channels)
     uri = channel["url"]
 
+    # get and read rss xml
     doc = Downloads.download(uri) |> readxml
 
     r = root(doc)
+    # convert rss feed into a julia dictionary
     d = xml2dict(r)
 
     published_tweets = readdlm(joinpath(fname, "published_tweets.txt"))
     txt = ""
     for item in shuffle(d["item"])
+
+        # prevent publishing same article
         if item["link"] in published_tweets
             continue
         end
+
+        # crate the tweet message (title, ramdom emoji, link)
         txt *= item["title"] * " " * string(rand(channel["emojis"])) * "\n" * item["link"]
 
+        # mark as published
         writedlm(joinpath(fname, "published_tweets.txt"), vcat(published_tweets, item["link"]))
         break
     end
@@ -95,8 +107,13 @@ end
 
 
 function post_tweet_from_rss(testing = false)
+    # read credential for twitter API
     creds = Authentictor(ENV["TWITTER_CKEY"], ENV["TWITTER_CSEC"], ENV["TWITTER_OTOK"], ENV["TWITTER_OSEC"])
+
+    # random tweet
     txt = get_tweet_from_rss()
+
+    # empty tweets are not published
     if isempty(txt)
         @warn "No tweet was available for publication."
         return false
